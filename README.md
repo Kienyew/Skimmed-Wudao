@@ -3,7 +3,7 @@
 
 # Requirements
 1. python3
-2. 
+2. Check `requirements.txt`, install python library by running `pip install -r requirements.txt`.
 
 # Features
 1. 支持在线与无限查询，在线查询后自动充入数据库。<br /> Support both online and offline query, word info will automatically be added to the database after online query.
