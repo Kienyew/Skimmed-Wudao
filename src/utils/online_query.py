@@ -1,12 +1,11 @@
-from urllib.request import urlopen
-from urllib.parse import urlparse
-from urllib.parse import quote
+from urllib.parse import urlparse, quote
 
 from utils.soupselect import select
 from dictionary.entry import EnglishDictEntry, ChineseDictEntry
 
 
 def get_html(x):
+    from urllib.request import urlopen
     x = quote(x)
     url = urlparse('http://dict.youdao.com/search?q=%s' % x)
     res = urlopen(url.geturl(), timeout=1)
