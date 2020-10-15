@@ -42,8 +42,8 @@ def parse_args(argv: List[str]) -> argparse.ArgumentParser:
     args = argparser.parse_args(argv[1:])
 
     if len(args.words) == 0 and args.completion is None:
-        raise ValueError(
-            "either 'words' or '--completion COMPLETION' must be provided")
+        argparser.print_help()
+        sys.exit(1)
 
     return args
 
