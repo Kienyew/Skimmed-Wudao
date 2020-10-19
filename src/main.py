@@ -53,8 +53,11 @@ def main():
     if args.words:
         word = ' '.join(args.words)
         entry = Dictionary(args.local).query_word(word)
-        output = Painter(color=args.color == 'always').paint_entry(entry)
-        print(output)
+        if entry is None:
+            print('Cant find')
+        else:
+            output = Painter(color=args.color == 'always').paint_entry(entry)
+            print(output)
     elif args.completion:
         for word in get_completion_words(args.completion):
             print(word)

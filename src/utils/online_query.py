@@ -1,6 +1,6 @@
 from urllib.parse import urlparse, quote
+from typing import Optional
 
-from utils.soupselect import select
 from dictionary.entry import EnglishDictEntry, ChineseDictEntry
 
 
@@ -28,17 +28,20 @@ def multi_space_to_single(text):
 
 
 # get word info online
-def get_en_text(word) -> EnglishDictEntry:
+def get_en_text(word) -> Optional[EnglishDictEntry]:
     import bs4
     content = get_html(word)
     word_struct = {"word": word}
     root = bs4.BeautifulSoup(content, 'lxml')
 
+    if root.select_one('.keyword') is None:
+        return None
+
     pron = {}
 
     pron_fallback = False
 
-    for pron_item in select(root, ".pronounce"):
+    for pron_item in root.select(".pronounce"):
         pron_lang = None
         pron_phonetic = None
 
@@ -62,7 +65,7 @@ def get_en_text(word) -> EnglishDictEntry:
         pron[pron_lang] = pron_phonetic
 
     if pron_fallback:
-        for item in select(root, ".phonetic"):
+        for item in root.select(".phonetic"):
             if item.name.lower() == "span":
                 pron[""] = item.text
                 break
@@ -71,7 +74,7 @@ def get_en_text(word) -> EnglishDictEntry:
     #
     #  <--  BASIC DESCRIPTION
     #
-    nodes = select(root, "#phrsListTab .trans-container ul")
+    nodes = root.select( "#phrsListTab .trans-container ul")
     basic_desc = []
 
     if len(nodes) != 0:
@@ -97,7 +100,7 @@ def get_en_text(word) -> EnglishDictEntry:
     #  <--  RANK
     #
     rank = ""
-    nodes = select(root, ".rank")
+    nodes = root.select(".rank")
     if len(nodes) != 0:
         rank = nodes[0].text.strip()
     word_struct["rank"] = rank
@@ -108,7 +111,7 @@ def get_en_text(word) -> EnglishDictEntry:
     # .collinsToggle .pattern
     pattern = ""
 
-    nodes = select(root, ".collinsToggle .pattern")
+    nodes = root.select(".collinsToggle .pattern")
     if len(nodes) != 0:
         #    pattern = nodes[0].text.strip().replace(" ", "").replace("\t", "").replace("\n", "").replace("\r", "")
         pattern = multi_space_to_single(nodes[0].text.strip())
@@ -118,8 +121,8 @@ def get_en_text(word) -> EnglishDictEntry:
     #  <-- VERY COMPLEX
     #
     word_struct["sentence"] = []
-    for child in select(root, ".collinsToggle .ol li"):
-        p = select(child, "p")
+    for child in root.select(".collinsToggle .ol li"):
+        p = child.select("p")
         if len(p) == 0:
             continue
         p = p[0]
@@ -138,18 +141,18 @@ def get_en_text(word) -> EnglishDictEntry:
 
         examples = []
 
-        for el in select(child, ".exampleLists"):
+        for el in child.select(".exampleLists"):
             examp = []
-            for p in select(el, ".examples p"):
+            for p in el.select(".examples p"):
                 examp.append(p.text.strip())
             examples.append(examp)
         word_struct["sentence"].append([desc, cx, examples])
     # 21 new year
     if not word_struct["sentence"]:
         for v in root.select("#bilingual ul li"):
-            p = select(v, "p")
+            p = v.select("p")
             ll = []
-            for p in select(v, "p"):
+            for p in v.select("p"):
                 if len(p) == 0:
                     continue
                 if 'class' not in p.attrs:
@@ -166,15 +169,17 @@ def get_en_text(word) -> EnglishDictEntry:
                             word_struct['sentence'])
 
 
-def get_zh_text(word) -> ChineseDictEntry:
+def get_zh_text(word) -> Optional[ChineseDictEntry]:
     import bs4
     content = get_html(word)
     word_struct = {"word": word}
     root = bs4.BeautifulSoup(content, 'lxml')
+    if root.select_one('.keyword') is None:
+        return None
 
     # pronunciation
     pron = ''
-    for item in select(root, ".phonetic"):
+    for item in root.select(".phonetic"):
         if item.name.lower() == "span":
             pron = item.text
             break
@@ -182,7 +187,7 @@ def get_zh_text(word) -> ChineseDictEntry:
     word_struct["pronunciation"] = pron
 
     #  <--  BASIC DESCRIPTION
-    nodes = select(root, "#phrsListTab .trans-container ul p")
+    nodes = root.select("#phrsListTab .trans-container ul p")
     basic_desc = []
 
     if len(nodes) != 0:
@@ -192,15 +197,15 @@ def get_zh_text(word) -> ChineseDictEntry:
 
     # DESC
     desc = []
-    for child in select(root, '#authDictTrans ul li ul li'):
+    for child in root.select('#authDictTrans ul li ul li'):
         single = []
-        sp = select(child, 'span')
+        sp = child.select('span')
         if sp:
             span = sp[0].text.strip().replace(':', '')
             if span:
                 single.append(span)
         ps = []
-        for p in select(child, 'p'):
+        for p in child.select('p'):
             ps.append(p.text.strip())
         if ps:
             single.append(ps)
@@ -212,9 +217,9 @@ def get_zh_text(word) -> ChineseDictEntry:
     word_struct["sentence"] = []
     # 21 new year
     for v in root.select("#bilingual ul li"):
-        p = select(v, "p")
+        p = v.select("p")
         ll = []
-        for p in select(v, "p"):
+        for p in v.select("p"):
             if len(p) == 0:
                 continue
             if 'class' not in p.attrs:
