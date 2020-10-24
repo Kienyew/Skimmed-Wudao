@@ -50,19 +50,26 @@ def parse_args(argv: List[str]) -> argparse.ArgumentParser:
 
 def main():
     args = parse_args(sys.argv)
+    exit_code = 0
     if args.words:
         word = ' '.join(args.words)
         entry = Dictionary(args.local).query_word(word)
         if entry is None:
             print('Cant find')
+            exit_code = 1
         else:
-            output = Painter(color=args.color == 'always').paint_entry(entry)
+            color = args.color == 'always'
+            output = Painter(color).paint_entry(entry)
             print(output)
+            exit_code = 0
     elif args.completion:
         for word in get_completion_words(args.completion):
             print(word)
+        exit_code = 0
     else:
         raise NotImplementedError('code should not reach here')
+
+    sys.exit(exit_code)
 
 
 if __name__ == '__main__':
