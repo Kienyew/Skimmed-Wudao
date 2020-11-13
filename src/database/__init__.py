@@ -45,13 +45,13 @@ class DatabaseManager:
     def insert_english_entry(self, entry: EnglishDictEntry):
         gzipped_json = gzip.compress(entry.to_json().encode())
         self.cursor.execute(
-            'INSERT INTO english (word, gzipped_json) VALUES (?, ?)', (entry.word, gzipped_json))
+            'INSERT OR IGNORE INTO english (word, gzipped_json) VALUES (?, ?)', (entry.word, gzipped_json))
         self.database.commit()
 
     def insert_chinese_entry(self, entry: ChineseDictEntry):
         gzipped_json = gzip.compress(entry.to_json().encode())
         self.cursor.execute(
-            'INSERT INTO chinese (word, gzipped_json) VALUES (?, ?)', (entry.word, gzipped_json))
+            'INSERT OR IGNORE INTO chinese (word, gzipped_json) VALUES (?, ?)', (entry.word, gzipped_json))
         self.database.commit()
 
 

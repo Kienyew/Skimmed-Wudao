@@ -21,7 +21,6 @@ class Dictionary:
         if entry is None:
             return None
 
-        self.database.insert_english_entry(entry)
         return entry
 
     def query_chinese_word(self, word: str) -> Optional[ChineseDictEntry]:
@@ -33,11 +32,16 @@ class Dictionary:
         if entry is None:
             return None
 
-        self.database.insert_chinese_entry(entry)
         return entry
 
     def query_word(self, word: str) -> Optional[Union[ChineseDictEntry, EnglishDictEntry]]:
         if language.get_language(word) == language.Lang.CHINESE:
-            return self.query_chinese_word(word)
+            entry = self.query_chinese_word(word)
+            if self.db_feedback:
+                self.database.insert_chinese_entry(entry)
         elif language.get_language(word) == language.Lang.ENGLISH:
-            return self.query_english_word(word)
+            entry = self.query_english_word(word)
+            if self.db_feedback:
+                self.database.insert_english_entry(entry)
+
+        return entry
