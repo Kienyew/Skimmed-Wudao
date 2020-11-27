@@ -37,11 +37,11 @@ class Dictionary:
     def query_word(self, word: str) -> Optional[Union[ChineseDictEntry, EnglishDictEntry]]:
         if language.get_language(word) == language.Lang.CHINESE:
             entry = self.query_chinese_word(word)
-            if self.db_feedback:
+            if entry is not None and self.db_feedback:
                 self.database.insert_chinese_entry(entry)
         elif language.get_language(word) == language.Lang.ENGLISH:
             entry = self.query_english_word(word)
-            if self.db_feedback:
+            if entry is not None and self.db_feedback:
                 self.database.insert_english_entry(entry)
 
         return entry
