@@ -4,7 +4,7 @@ from termcolor import colored as _colored
 from dictionary.entry import ChineseDictEntry, EnglishDictEntry
 
 
-def _dummy_colored(text: str, *args, **kwargs):
+def dummy_colored(text: str, *args, **kwargs):
     return text
 
 
@@ -21,7 +21,7 @@ class Painter:
             raise TypeError('invalid type')
 
     def paint_english_entry(self, entry: EnglishDictEntry) -> str:
-        colored = _colored if self.color else _dummy_colored
+        colored = _colored if self.color else dummy_colored
         output_lines = []
 
         # word
@@ -80,7 +80,7 @@ class Painter:
 
                     for sv in v[2]:
                         output_lines += [
-                            f"  {colored('例', color='green')}: {colored(sv[0] + ' ' + sv[1], color='yellow')}"]
+                            f"  {colored('例', color='green')}: {colored(sv[0] + ' ' + sv[1], color='yellow', attrs=['bold'])}"]
 
                     output_lines += ['']
             else:
@@ -89,12 +89,12 @@ class Painter:
                         continue
 
                     output_lines += [
-                        f"{i}. {colored('[例]')} {v[0]}  {colored(v[1], color='yellow')}"]
+                        f"{i}. {colored('[例]')} {v[0]}  {colored(v[1], color='yellow', attrs=['bold'])}"]
 
         return '\n'.join(output_lines)
 
     def paint_chinese_entry(self, entry: ChineseDictEntry) -> str:
-        colored = _colored if self.color else _dummy_colored
+        colored = _colored if self.color else dummy_colored
 
         output_lines = []
         # word
@@ -122,7 +122,7 @@ class Painter:
                 # sub example
                 if len(v) == 2:
                     for j in range(0, len(v[1]), 2):
-                        line = f"    {colored(v[1][j].strip().replace(';', ''), color='yellow')}    {v[1][j + 1]}"
+                        line = f"    {colored(v[1][j].strip().replace(';', ''), color='yellow', attrs=['bold'])}    {v[1][j + 1]}"
                         output_lines += [line]
 
         # example
