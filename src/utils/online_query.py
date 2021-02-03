@@ -1,16 +1,11 @@
-from urllib.parse import urlparse, quote
 from typing import Optional
 
 from dictionary.entry import EnglishDictEntry, ChineseDictEntry
 
 
-def get_html(x):
-    from urllib.request import urlopen
-    x = quote(x)
-    url = urlparse('http://dict.youdao.com/search?q=%s' % x)
-    res = urlopen(url.geturl(), timeout=1)
-    xml = res.read().decode('utf-8')
-    return xml
+def get_word_html(x):
+    import requests
+    return requests.get(f'http://dict.youdao.com/search?q={x}').text
 
 
 def multi_space_to_single(text):
@@ -30,7 +25,7 @@ def multi_space_to_single(text):
 # get word info online
 def get_en_text(word) -> Optional[EnglishDictEntry]:
     import bs4
-    content = get_html(word)
+    content = get_word_html(word)
     word_struct = {"word": word}
     root = bs4.BeautifulSoup(content, 'lxml')
 
@@ -171,7 +166,7 @@ def get_en_text(word) -> Optional[EnglishDictEntry]:
 
 def get_zh_text(word) -> Optional[ChineseDictEntry]:
     import bs4
-    content = get_html(word)
+    content = get_word_html(word)
     word_struct = {"word": word}
     root = bs4.BeautifulSoup(content, 'lxml')
     if root.select_one('.keyword') is None:
