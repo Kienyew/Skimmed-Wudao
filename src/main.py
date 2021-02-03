@@ -55,7 +55,7 @@ def main():
         word = ' '.join(args.words)
         entry = Dictionary(args.local).query_word(word)
         if entry is None:
-            print('Cant find')
+            print('Cant find', file=sys.stderr)
             exit_code = 1
         else:
             color = args.color == 'always'
@@ -73,4 +73,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print('Cancelled', file=sys.stderr)
